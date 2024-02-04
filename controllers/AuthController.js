@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
-import regexEmailValidator from "../utils/regexEmailValidator.js";
+import { regexEmailValidator , isEmailExist } from "../utils/emailValidator.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/generateToken.js";
 import authModel from "../models/AuthModel.js";
 
@@ -16,7 +15,10 @@ class AuthController{
             if(!fullName) { throw { code : 404, message : 'Full name is Required '} };
             if(!email) { throw { code : 404, message : 'Email is Required '} };
             if(!password) { throw { code : 404, message : 'Password is Required '} };
-            if(!regexEmailValidator(email)) { throw { code : 404, message : 'Emaill is not Vaid' }};
+            if(!regexEmailValidator(email)) { throw { code : 404, message : 'Emaill is not Valid' }};
+
+            const emailExist = await isEmailExist(email);
+            if(emailExist) { throw { code : 404, message : 'Email Already Exist' } };
             
             const salt = await bcrypt.genSalt(15);
             const hash = await bcrypt.hash(password, salt);
@@ -32,11 +34,16 @@ class AuthController{
             }
             const result = await authModel.createUser(data);
             if(result.rowCount){
+                let payload = { username : username}
+                const accessToken = await generateAccessToken(payload);
+                const refrestToken = await generateRefreshToken(payload);
                 return res.status(200)
                             .json({
                                 status: true,
                                 message : "REGISTER SUCCESS",
                                 fullName : fullName,
+                                accessToken : accessToken,
+                                refrestToken : refrestToken
                             })
             }else{
                 throw { 
