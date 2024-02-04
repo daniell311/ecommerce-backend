@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import jwt from "jsonwebtoken";
 
 const env = dotenv.config().parsed
 
