@@ -1,10 +1,9 @@
 import bcrypt from "bcrypt";
-import dotenv from "dotenv";
-import { regexEmailValidator , isEmailExist } from "../utils/emailValidator.js";
+import {regexEmailValidator} from "../utils/emailValidator.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/generateToken.js";
 import authModel from "../models/AuthModel.js";
+import queryHelper from "../utils/queryHelper.js";
 
-const env = dotenv.config().parsed; 
 
 class AuthController{
 
@@ -17,9 +16,11 @@ class AuthController{
             if(!password) { throw { code : 404, message : 'Password is Required '} };
             if(!regexEmailValidator(email)) { throw { code : 404, message : 'Emaill is not Valid' }};
 
-            const emailExist = await isEmailExist(email);
+            const emailExist = await queryHelper.isExist('auth', 'a_users', 'email', `email = '${email}'`);
             if(emailExist) { throw { code : 404, message : 'Email Already Exist' } };
-            
+            const usernameExist = await queryHelper.isExist('auth', 'a_users', 'username', `username = '${username}'`);
+            if(usernameExist) { throw { code : 404, message : 'Username Already Exist' } };
+
             const salt = await bcrypt.genSalt(15);
             const hash = await bcrypt.hash(password, salt);
             const data = {
@@ -32,7 +33,7 @@ class AuthController{
                 isAktif : 1,
                 salt : salt,
             }
-            const result = await authModel.createUser(data);
+            const result = await queryHelper.insertData('auth', 'a_users', data);
             if(result.rowCount){
                 let payload = { username : username}
                 const accessToken = await generateAccessToken(payload);
