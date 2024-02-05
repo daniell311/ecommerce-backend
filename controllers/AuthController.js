@@ -3,6 +3,10 @@ import {regexEmailValidator} from "../utils/emailValidator.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/generateToken.js";
 import authModel from "../models/AuthModel.js";
 import queryHelper from "../utils/queryHelper.js";
+import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
+
+const env = dotenv.config().parsed;
 
 
 class AuthController{
@@ -35,6 +39,7 @@ class AuthController{
             }
             const result = await queryHelper.insertData('auth', 'a_users', data);
             if(result.rowCount){
+                // payload user data used as a session when user login
                 let payload = { username : username}
                 const accessToken = await generateAccessToken(payload);
                 const refrestToken = await generateRefreshToken(payload);
@@ -74,6 +79,7 @@ class AuthController{
             const isPasswordValid = await bcrypt.compareSync(password, user[0].password)
             if(!isPasswordValid) { throw { code :404, message: "INVALID PASSWORD"}}
 
+            // payload user data used as a session when user login
             let payload = { username: user[0].username}
             const accessToken = await generateAccessToken(payload)
             const refreshToken = await generateRefreshToken(payload)
@@ -85,13 +91,50 @@ class AuthController{
                             fullname : user.fullname,
                             accessToken,
                             refreshToken
-                         })
+                        })
         } catch(error){
             return res.status(error.code || 500)
                         .json({
                             status : false,
                             message: error.message
                         })
+        }
+    }
+
+    async refreshToken(req, res){
+        try{
+            const token = req.body.refreshToken;
+            if(!token) { throw { code:400, message: 'Refresh token is Required' } }
+
+            // Verify refresh token validity
+            const verify = await jwt.verify(token, env.REFRESH_TOKEN);
+
+            let payload = { username: verify.username}
+            const accessToken = await generateAccessToken(payload)
+            const refreshToken = await generateRefreshToken(payload)
+
+            return res.status(200)
+                        .json({
+                            status : true,
+                            message : 'Refresh token Success',
+                            accessToken,
+                            refreshToken
+                        })
+        }catch(error){
+            // Catch error message from method .verify
+            const jwtError = ['invalid signature', 'jwt must be provided', 'jwt malformed', 'invalid token'];
+
+            if(error.message == 'jwt expired'){
+                error.message = 'Refresh token expired'
+            }else if(jwtError.includes(error.message)){
+                        error.message = 'Refresh Token Invalid'
+            } 
+            // 
+            return res.status(error.code || 500)
+                        .json({
+                                status : false,
+                                message: error.message
+                            })
         }
     }
 }

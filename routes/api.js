@@ -6,5 +6,6 @@ const router = express.Router();
 
 router.post('/auth/login', AuthController.login);
 router.post('/auth/registration', AuthController.registration);
+router.post('/auth/refreshtoken', AuthController.refreshToken);
 
 export default router
