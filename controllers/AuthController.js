@@ -61,6 +61,39 @@ class AuthController{
                 });
             }   
     }
+    
+    async login(req,res) {
+        try{
+            const { username, password } = req.body;
+            if(!username) { throw { code : 400, message : "Please enter a Required" } }
+            if(!password) { throw { code : 400, message : "Please enter a Password" } }
+
+            const user = await queryHelper.getRow('auth', 'a_users', `username = '${username}'`)
+            if(!user) { throw { code :404, message: "USER NOT FOUND" } }
+            
+            const isPasswordValid = await bcrypt.compareSync(password, user[0].password)
+            if(!isPasswordValid) { throw { code :404, message: "INVALID PASSWORD"}}
+
+            let payload = { username: user[0].username}
+            const accessToken = await generateAccessToken(payload)
+            const refreshToken = await generateRefreshToken(payload)
+            
+            return res.status(200)
+                        .json({ 
+                            status: true,
+                            message: "LOGIN SUCCESSFUL",
+                            fullname : user.fullname,
+                            accessToken,
+                            refreshToken
+                         })
+        } catch(error){
+            return res.status(error.code || 500)
+                        .json({
+                            status : false,
+                            message: error.message
+                        })
+        }
+    }
 }
 
 export default new AuthController();
