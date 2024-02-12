@@ -70,12 +70,11 @@ class AuthController{
     async login(req,res) {
         try{
             const { username, password } = req.body;
-            if(!username) { throw { code : 400, message : "Please enter a Required" } }
+            if(!username) { throw { code : 400, message : "Please enter a Username" } }
             if(!password) { throw { code : 400, message : "Please enter a Password" } }
 
             const user = await queryHelper.getRow('auth', 'a_users', `username = '${username}'`)
-            if(!user) { throw { code :404, message: "USER NOT FOUND" } }
-            
+            if( user[0] == undefined) { throw { code :404, message: "USER NOT FOUND" } }
             const isPasswordValid = await bcrypt.compareSync(password, user[0].password)
             if(!isPasswordValid) { throw { code :404, message: "INVALID PASSWORD"}}
 
