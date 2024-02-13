@@ -15,7 +15,7 @@ class ProductController{
                 storeid: 1,
                 softdelete: 0
             };
-            console.log({ sess : JSON.stringify(req.headers.authorization)});
+            console.log({ sess : req.jsonwebtoken.username});
             const result = await queryHelper.insertData("product", "p_product", data);
             if(result.rowCount){
                 return res.status(200)
@@ -38,6 +38,43 @@ class ProductController{
                     message: error.message
                 });
         }
+    }
+
+    // TODO add form validation logic
+    async editProduct(req, res){
+        try {
+            const { productName, productDetails, productPrice } = req.body;
+            const productId = req.params.productid;
+            if(!productName) { throw { code : 404, message : 'Product Name is Required'}};
+            if(!productDetails) { throw { code : 404, message : 'Product Details is Required'}};
+            if(!productPrice) { throw { code : 404, message : 'Product Price is Required'}};
+
+            const product = await queryHelper.getRow('product', 'p_product', `productid = ${ productId }`);
+            const data = req.body;
+            const result = await queryHelper.updateData('product', 'p_product', data, ` productid = ${ productId }`);
+            if(result){
+                return res.status(200)
+                            .json({
+                                status: true,
+                                message : "Berhasil Mengedit Product",
+                                productName : productName,
+                            })
+            }else{
+                throw { 
+                    code : 404, 
+                    message : 'Gagal Mengedit Product'
+                } 
+            }
+        } catch (error) {
+            return res.status(error.code || 500)
+            .json({
+                status: false,
+                message: error.message
+            });
+        }
+        
+
+
     }
 }
 
