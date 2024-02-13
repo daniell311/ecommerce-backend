@@ -32,9 +32,28 @@ class queryHelper {
 
     async updateData(schema, table, data, keys){
         try {
-            
+            let values = [];
+            for (let key in data) {
+                if(typeof data[key] === 'string'){
+                    values.push(key + "=" + `'${data[key]}'`);
+                }else if(typeof data[key] === "number"){
+                    values.push(key + "=" + data[key]);
+                }
+            }
+            const sql = `UPDATE ${schema}.${table} set ${ values } WHERE ${ keys }`;
+            const myPromise = () => {
+                return new Promise((resolve, reject) => {
+                    db.query(sql, (err, fields) => {
+                        err 
+                        ? reject(err) 
+                        : resolve(fields);
+                    });
+                });
+            }; 
+            let result = await(myPromise());
+            return result;
         } catch (error) {
-            
+            return error;
         }
     }
 
