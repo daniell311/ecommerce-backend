@@ -79,7 +79,7 @@ class AuthController{
             if(!isPasswordValid) { throw { code :404, message: "INVALID PASSWORD"}}
 
             // payload user data used as a session when user login
-            let payload = { username: user[0].username}
+            let payload = { userid: user[0].userid}
             const accessToken = await generateAccessToken(payload)
             const refreshToken = await generateRefreshToken(payload)
             
@@ -107,8 +107,7 @@ class AuthController{
 
             // Verify refresh token validity
             const verify = await jwt.verify(token, env.REFRESH_TOKEN);
-
-            let payload = { username: verify.username}
+            let payload = { userid: verify.userid}
             const accessToken = await generateAccessToken(payload)
             const refreshToken = await generateRefreshToken(payload)
 
