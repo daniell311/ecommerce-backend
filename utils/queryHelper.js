@@ -29,7 +29,7 @@ class queryHelper {
             return error
         }
     }
-
+    // @TODO add timestamp every time data updated
     async updateData(schema, table, data, keys){
         try {
             let values = [];
