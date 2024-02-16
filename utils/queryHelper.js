@@ -60,6 +60,25 @@ class queryHelper {
         }
     }
 
+    async deleteData(schema, table, condition){
+        try {
+            const sql = `DELETE FROM ${schema}.${table} WHERE ${ condition }`;
+            const myPromise = () => {
+                return new Promise((resolve, reject) => {
+                    db.query(sql, (err, fields) => {
+                        err 
+                        ? reject(err) 
+                        : resolve(fields.rowCount != 0 ? true : false);
+                    });
+                });
+            }; 
+            let result = await(myPromise());
+            return result;
+        } catch (error) {
+            return error;
+        }
+    }
+
     async findOne(schema, table, col, condition){
         try {
             const sql = `SELECT ${ col } FROM ${ schema }.${ table } WHERE ${ condition }`

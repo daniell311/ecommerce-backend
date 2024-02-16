@@ -72,9 +72,34 @@ class ProductController{
                 message: error.message
             });
         }
-        
+    }
 
+    async deleteProduct(req, res){
+        try {
+            const productId = req.params.productid;
+            const productName = await queryHelper.findOne('product', 'p_product', 'productname', `productid = ${productId}`)
+            const result = await queryHelper.deleteData('product', 'p_product', `productid = ${productId}`);
+            if(result){
+                return res.status(200)
+                            .json({
+                                status: true,
+                                message : "Berhasil Menghapus Product",
+                                productName : productName[0],
+                            })
+            }else{
+                throw { 
+                    code : 404, 
+                    message : 'Gagal Menghapus Product'
+                }
+            }
 
+        } catch (error) {
+            return res.status(error.code || 500)
+            .json({
+                status: false,
+                message: error.message
+            });
+        }
     }
 }
 

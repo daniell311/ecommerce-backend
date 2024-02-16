@@ -11,4 +11,6 @@ router.post('/auth/refreshtoken', AuthController.refreshToken);
 
 router.post('/product/addproduct', jwtAuth(), ProductController.addProduct);
 router.put('/product/:productid/editproduct', jwtAuth(), ProductController.editProduct);
+router.delete('/product/:productid', jwtAuth(), ProductController.deleteProduct);
+
 export default router
