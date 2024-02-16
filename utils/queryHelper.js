@@ -1,5 +1,7 @@
 import db from '../database/connection.js';
+import dotenv from "dotenv";
 
+const env = dotenv.config().parsed;
 class queryHelper {
     async insertData(schema, table, data){
         try {
@@ -29,10 +31,11 @@ class queryHelper {
             return error
         }
     }
-    // @TODO add timestamp every time data updated
     async updateData(schema, table, data, keys){
         try {
             let values = [];
+            let timestamp = new Date().toLocaleString('en-US', { timeZone: env.TIMEZONE });
+            values.push(`updatedat = '${timestamp}'`);
             for (let key in data) {
                 if(typeof data[key] === 'string'){
                     values.push(key + "=" + `'${data[key]}'`);
