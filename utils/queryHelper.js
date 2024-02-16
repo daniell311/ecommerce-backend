@@ -49,7 +49,7 @@ class queryHelper {
                     db.query(sql, (err, fields) => {
                         err 
                         ? reject(err) 
-                        : resolve(fields);
+                        : resolve(fields.rowCount != 0 ? true : false);
                     });
                 });
             }; 
