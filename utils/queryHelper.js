@@ -69,7 +69,8 @@ class queryHelper {
                     db.query(sql, (err, fields) => {
                         err 
                         ? reject(err) 
-                        : resolve(fields.rows);
+                        // Get first row, first row = array index[0]
+                        : resolve(fields.rows[0]);
                     });
                 });
             }; 
