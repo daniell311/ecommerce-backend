@@ -4,6 +4,23 @@ import dotenv from "dotenv";
 const env = dotenv.config().parsed;
 class queryHelper {
 
+    // Get data by defined query
+    async getBySQL(query){
+        try {
+            const myPromise = () => {
+                return new Promise((resolve, reject) => {
+                    db.query(query, (err, fields) => {
+                        err ? reject(err) : resolve(fields);
+                    })
+                })
+            }
+            let result = await(myPromise());
+            return result;
+        } catch (error) {
+            return error;
+        }
+    }
+
     async getData(schema, table, limit, offset){
         try {
             let sql = `SELECT * FROM ${ schema }.${ table }`;
