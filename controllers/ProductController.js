@@ -1,6 +1,29 @@
 import queryHelper from "../utils/queryHelper.js";
+import { response, responsePaginate, responseError } from "../utils/response.js";
 
 class ProductController{
+    async getAllProduct(req, res) {
+        try {
+            const page = req.query.page ? req.query.page : 1;
+            const limit = req.query.limit ? req.query.limit : 10;
+            const offset = (parseInt(page) - 1) * limit;
+
+            const sumData = await queryHelper.countRow('product', 'p_product', 'productid');
+            const data = await queryHelper.getData('product', 'p_product', limit, offset);
+
+            if(data){
+                return responsePaginate(200, data.rows, "Get All Product", sumData[0].count, limit, page, res);
+            }else{
+                throw{
+                    code : 404,
+                    message : "Data Not Found"
+                }
+            }
+        } catch (error) {
+            return responseError(error.code, error.message);
+        }
+    }
+
     async addProduct(req,res){
         try {
             const { productName, productDetails, productPrice } = req.body;

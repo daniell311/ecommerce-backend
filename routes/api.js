@@ -9,6 +9,7 @@ router.post('/auth/login', AuthController.login);
 router.post('/auth/registration', AuthController.registration);
 router.post('/auth/refreshtoken', AuthController.refreshToken);
 
+router.get('/product', jwtAuth(), ProductController.getAllProduct);
 router.post('/product/addproduct', jwtAuth(), ProductController.addProduct);
 router.put('/product/:productid/editproduct', jwtAuth(), ProductController.editProduct);
 router.delete('/product/:productid', jwtAuth(), ProductController.deleteProduct);
