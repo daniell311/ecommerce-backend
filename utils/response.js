@@ -29,7 +29,7 @@ export const responsePaginate = (statusCode, data, msg, totalRows, limit, page, 
   });
 };
 
-export const responseError = (statusCode, msg) => {
+export const responseError = (statusCode, msg, res) => {
   res.status(statusCode).json({
     status_code : statusCode,
     message : msg 
