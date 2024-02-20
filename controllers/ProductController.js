@@ -9,10 +9,25 @@ class ProductController{
             if(data){
                 return responsePaginate(200, data.rows, "Get All Product", sumData[0].count, req.paginateLimit, req.paginatePage, res);
             }else{
-                responseError(404, "Data Not Found");
+                responseError(404, "Data Not Found", res);
             }
         } catch (error) {
-            return responseError(error.code, error.message);
+            return responseError(error.code, error.message, res);
+        }
+    }
+
+    async getProductById(req, res) {
+        try {
+            const productId = req.params.productid;
+            if(!productId) { return responseError(404, "Product Id Required", res); }
+            const data = await queryHelper.getRow('product', 'p_product', ` productid = ${ productId }`);
+            if(data != undefined){
+                return response(200, data, "Get Product By Id", res, data.rowCount)
+            }else{
+                return responseError(404, "Data Not Found By Id " + productId, res);
+            }
+        } catch (error) {
+            return responseError(error.code, error.message, res);
         }
     }
 
