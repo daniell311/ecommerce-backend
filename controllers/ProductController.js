@@ -4,20 +4,12 @@ import { response, responsePaginate, responseError } from "../utils/response.js"
 class ProductController{
     async getAllProduct(req, res) {
         try {
-            const page = req.query.page ? req.query.page : 1;
-            const limit = req.query.limit ? req.query.limit : 10;
-            const offset = (parseInt(page) - 1) * limit;
-
             const sumData = await queryHelper.countRow('product', 'p_product', 'productid');
-            const data = await queryHelper.getData('product', 'p_product', limit, offset);
-
+            const data = await queryHelper.getData('product', 'p_product', req.paginateLimit, req.paginateOffset);
             if(data){
-                return responsePaginate(200, data.rows, "Get All Product", sumData[0].count, limit, page, res);
+                return responsePaginate(200, data.rows, "Get All Product", sumData[0].count, req.paginateLimit, req.paginatePage, res);
             }else{
-                throw{
-                    code : 404,
-                    message : "Data Not Found"
-                }
+                responseError(404, "Data Not Found");
             }
         } catch (error) {
             return responseError(error.code, error.message);
@@ -38,7 +30,6 @@ class ProductController{
                 storeid: 1,
                 softdelete: 0
             };
-            console.log({ sess : req.jsonwebtoken.username});
             const result = await queryHelper.insertData("product", "p_product", data);
             if(result.rowCount){
                 return res.status(200)
@@ -63,7 +54,6 @@ class ProductController{
         }
     }
 
-    // TODO add form validation logic
     async editProduct(req, res){
         try {
             const { productName, productDetails, productPrice } = req.body;
@@ -72,7 +62,6 @@ class ProductController{
             if(!productDetails) { throw { code : 404, message : 'Product Details is Required'}};
             if(!productPrice) { throw { code : 404, message : 'Product Price is Required'}};
 
-            const product = await queryHelper.getRow('product', 'p_product', `productid = ${ productId }`);
             const data = req.body;
             const result = await queryHelper.updateData('product', 'p_product', data, ` productid = ${ productId }`);
             if(result){
