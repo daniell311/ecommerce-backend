@@ -3,6 +3,47 @@ import dotenv from "dotenv";
 
 const env = dotenv.config().parsed;
 class queryHelper {
+
+    async getData(schema, table, limit, offset){
+        try {
+            let sql = `SELECT * FROM ${ schema }.${ table }`;
+            if(limit != null) { sql += ` LIMIT ${ limit }` };
+            if(offset != null) { sql += ` OFFSET ${ offset }` }; 
+
+            const myPromise = () => {
+                return new Promise((resolve, reject) => {
+                    db.query(sql, (err, fields) => {
+                        err ? reject(err) : resolve(fields);
+                    })
+                })
+            }
+            let result = await(myPromise());
+            return result;
+        } catch (error) {
+            return error;
+        }
+    }
+    
+    async getRow(schema, table, condition){
+        try {
+            const sql = `SELECT * FROM ${ schema }.${ table } WHERE ${ condition }`
+            const myPromise = () => {
+                return new Promise((resolve, reject) => {
+                    db.query(sql, (err, fields) => {
+                        err 
+                        ? reject(err) 
+                        : resolve(fields.rows);
+                    });
+                });
+            }; 
+            let result = await(myPromise());
+            return result;
+            
+        } catch (error) {
+            return error;
+        }
+    }
+
     async insertData(schema, table, data){
         try {
             let cols = [];
@@ -31,6 +72,7 @@ class queryHelper {
             return error
         }
     }
+
     async updateData(schema, table, data, keys){
         try {
             let values = [];
@@ -98,26 +140,6 @@ class queryHelper {
             return error;
         }
     } 
-
-    async getRow(schema, table, condition){
-        try {
-            const sql = `SELECT * FROM ${ schema }.${ table } WHERE ${ condition }`
-            const myPromise = () => {
-                return new Promise((resolve, reject) => {
-                    db.query(sql, (err, fields) => {
-                        err 
-                        ? reject(err) 
-                        : resolve(fields.rows);
-                    });
-                });
-            }; 
-            let result = await(myPromise());
-            return result;
-            
-        } catch (error) {
-            return error;
-        }
-    }
 
     async isExist(schema, table, col, condition){
         try {
