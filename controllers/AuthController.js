@@ -74,12 +74,12 @@ class AuthController{
             if(!password) { throw { code : 400, message : "Please enter a Password" } }
 
             const user = await queryHelper.getRow('auth', 'a_users', `username = '${username}'`)
-            if( user[0] == undefined) { throw { code :404, message: "USER NOT FOUND" } }
-            const isPasswordValid = await bcrypt.compareSync(password, user[0].password)
+            if( user == undefined) { throw { code :404, message: "USER NOT FOUND" } }
+            const isPasswordValid = await bcrypt.compareSync(password, user.password)
             if(!isPasswordValid) { throw { code :404, message: "INVALID PASSWORD"}}
 
             // payload user data used as a session when user login
-            let payload = { userid: user[0].userid}
+            let payload = { userid: user.userid}
             const accessToken = await generateAccessToken(payload)
             const refreshToken = await generateRefreshToken(payload)
             
