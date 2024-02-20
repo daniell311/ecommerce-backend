@@ -23,6 +23,26 @@ class queryHelper {
             return error;
         }
     }
+
+    async countRow(schema, table, col, condition){
+        try {
+            let sql = `SELECT COUNT(${ col }) FROM ${ schema }.${ table }`;
+            if(condition) sql += ` WHERE ${ condition }`;
+            
+            const myPromise = () => {
+                return new Promise((resolve, reject) => {
+                    db.query(sql, (err, fields) => {
+                    err ? reject(err) : resolve(fields.rows)
+                    });
+                });
+            };
+            let result = await (myPromise());
+            return result;
+
+        } catch (error) {
+            return error;
+        }
+    }
     
     async getRow(schema, table, condition){
         try {
