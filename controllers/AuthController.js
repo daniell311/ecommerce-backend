@@ -39,8 +39,12 @@ class AuthController{
             }
             const result = await queryHelper.insertData('auth', 'a_users', data);
             if(result.rowCount){
+                const userId = await queryHelper.findOne('auth', 'a_users', 'userid', ` username = '${ username }'`);
                 // payload user data used as a session when user login
-                let payload = { username : username}
+                let payload = { 
+                    userid: userId, 
+                    username : username
+                }
                 const accessToken = await generateAccessToken(payload);
                 const refrestToken = await generateRefreshToken(payload);
                 return res.status(200)
@@ -79,7 +83,10 @@ class AuthController{
             if(!isPasswordValid) { throw { code :404, message: "INVALID PASSWORD"}}
 
             // payload user data used as a session when user login
-            let payload = { userid: user.userid}
+            let payload = { 
+                userid: user.userid,
+                username : user.username
+            }
             const accessToken = await generateAccessToken(payload)
             const refreshToken = await generateRefreshToken(payload)
             
@@ -107,7 +114,10 @@ class AuthController{
 
             // Verify refresh token validity
             const verify = await jwt.verify(token, env.REFRESH_TOKEN);
-            let payload = { userid: verify.userid}
+            let payload = { 
+                userid: verify.userid, 
+                username: verify.username
+            }
             const accessToken = await generateAccessToken(payload)
             const refreshToken = await generateRefreshToken(payload)
 
