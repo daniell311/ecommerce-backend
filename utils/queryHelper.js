@@ -2,8 +2,32 @@ import db from '../database/connection.js';
 import dotenv from "dotenv";
 
 const env = dotenv.config().parsed;
-class queryHelper {
 
+// Get table key
+const getTableKey = async tableName => {
+    const sql = `SELECT c.column_name, c.data_type
+    FROM information_schema.table_constraints tc 
+    JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_name) 
+    JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema
+    AND tc.table_name = c.table_name AND ccu.column_name = c.column_name
+    WHERE constraint_type = 'PRIMARY KEY' and tc.table_name = '${ tableName }';`
+    const myPromise = () => {
+        return new Promise((resolve, reject) => {
+            db.query(sql, (err, fields) => {
+                err ? reject(err) : resolve(fields.rows);
+            })
+        })
+    }
+    const rows = await(myPromise());
+    const keys = [];
+    for (let key in rows) {
+        keys.push(rows[key].column_name);
+    }  
+
+    return keys;
+}
+
+class queryHelper {
     // Get data by defined query
     async getBySQL(query){
         try {
@@ -111,11 +135,17 @@ class queryHelper {
         }
     }
 
-    async updateData(schema, table, data, keys){
+    // TODO handle if table keys have > 1 
+    // TODO Handle get user username for every update rows, if possible don't use req
+    async updateData(schema, table, data, keys, req){
         try {
+            const tableKey = await getTableKey(table);
+            const userName = req.jsonwebtoken.username;
+
             let values = [];
             let timestamp = new Date().toLocaleString('en-US', { timeZone: env.TIMEZONE });
-            values.push(`updatedat = '${timestamp}'`);
+            values.push(`updatedat = '${ timestamp }'`);
+            values.push(`updatedby = '${ userName }'`)
             for (let key in data) {
                 if(typeof data[key] === 'string'){
                     values.push(key + "=" + `'${data[key]}'`);
@@ -123,7 +153,7 @@ class queryHelper {
                     values.push(key + "=" + data[key]);
                 }
             }
-            const sql = `UPDATE ${schema}.${table} set ${ values } WHERE ${ keys }`;
+            const sql = `UPDATE ${schema}.${table} set ${ values } WHERE ${ tableKey[0] } = ${ keys }`;
             const myPromise = () => {
                 return new Promise((resolve, reject) => {
                     db.query(sql, (err, fields) => {
