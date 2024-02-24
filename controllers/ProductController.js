@@ -78,7 +78,7 @@ class ProductController{
             if(!productPrice) { throw { code : 404, message : 'Product Price is Required'}};
 
             const data = req.body;
-            const result = await queryHelper.updateData('product', 'p_product', data, ` productid = ${ productId }`);
+            const result = await queryHelper.updateData('product', 'p_product', data, productId , req);
             if(result){
                 return res.status(200)
                             .json({
