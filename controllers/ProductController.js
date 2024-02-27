@@ -6,9 +6,7 @@ import { tableAttr } from "../models/ProductModel.js";
 class ProductController{
     async getAllProduct(req, res) {
         try {
-            console.log({attr : tableAttr.schemaTable});
             const sumData = await queryHelper.countRow(tableAttr.schemaTable, 'productid');
-            console.log({s : sumData});
             const data = await queryHelper.getData(tableAttr.schemaTable, req.paginateLimit, req.paginateOffset);
             if(data){
                 return responsePaginate(200, data.rows, "Get All Product", sumData[0].count, req.paginateLimit, req.paginatePage, res);
@@ -83,7 +81,6 @@ class ProductController{
 
             const data = req.body;
             const result = await queryHelper.updateData(tableAttr.schemaTable, data, productId , req);
-            console.log({ r : result});
             if(result){
                 return res.status(200)
                             .json({
