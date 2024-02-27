@@ -1,11 +1,15 @@
+import productModel from "../models/ProductModel.js";
 import queryHelper from "../utils/queryHelper.js";
 import { response, responsePaginate, responseError } from "../utils/response.js";
+import { schemaTable } from "../models/ProductModel.js";
 
 class ProductController{
     async getAllProduct(req, res) {
         try {
-            const sumData = await queryHelper.countRow('product', 'p_product', 'productid');
-            const data = await queryHelper.getData('product', 'p_product', req.paginateLimit, req.paginateOffset);
+            
+            const sumData = await queryHelper.countRow(schemaTable, 'productid');
+            console.log({s : sumData});
+            const data = await queryHelper.getData(schemaTable, req.paginateLimit, req.paginateOffset);
             if(data){
                 return responsePaginate(200, data.rows, "Get All Product", sumData[0].count, req.paginateLimit, req.paginatePage, res);
             }else{
@@ -20,7 +24,7 @@ class ProductController{
         try {
             const productId = req.params.productid;
             if(!productId) { return responseError(404, "Product Id Required", res); }
-            const data = await queryHelper.getRow('product', 'p_product', ` productid = ${ productId }`);
+            const data = await queryHelper.getRow(schemaTable, ` productid = ${ productId }`);
             if(data != undefined){
                 return response(200, data, "Get Product By Id", res, data.rowCount)
             }else{
@@ -45,7 +49,7 @@ class ProductController{
                 storeid: 1,
                 softdelete: 0
             };
-            const result = await queryHelper.insertData("product", "p_product", data);
+            const result = await queryHelper.insertData(schemaTable, data);
             if(result.rowCount){
                 return res.status(200)
                             .json({
@@ -78,7 +82,7 @@ class ProductController{
             if(!productPrice) { throw { code : 404, message : 'Product Price is Required'}};
 
             const data = req.body;
-            const result = await queryHelper.updateData('product', 'p_product', data, productId , req);
+            const result = await queryHelper.updateData(schemaTable, data, productId , req);
             if(result){
                 return res.status(200)
                             .json({
@@ -104,8 +108,8 @@ class ProductController{
     async deleteProduct(req, res){
         try {
             const productId = req.params.productid;
-            const productName = await queryHelper.findOne('product', 'p_product', 'productname', `productid = ${productId}`)
-            const result = await queryHelper.deleteData('product', 'p_product', `productid = ${productId}`);
+            const productName = await queryHelper.findOne(schemaTable, 'productname', `productid = ${productId}`)
+            const result = await queryHelper.deleteData(schemaTable, `productid = ${productId}`);
             if(result){
                 return res.status(200)
                             .json({

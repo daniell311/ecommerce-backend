@@ -1,6 +1,7 @@
 import queryHelper from "../utils/queryHelper.js";
 import { response, responsePaginate, responseError } from "../utils/response.js";
 import { regexEmailValidator } from "../utils/emailValidator.js";
+import { schemaTable } from "../models/StoreModel.js";
 
 class StoreController {
     async createStore(req, res){
@@ -11,9 +12,9 @@ class StoreController {
             if(!storeDescription) { return responseError(404, "Store Description is required!", res ) };
             if(!regexEmailValidator(email)) { return responseError(404, "Emaill is not Valid", res ) };
 
-            const isStoreNameExist = await queryHelper.isExist('store', 'st_store', 'storename', ` storename = '${ storeName }'`);
-            const isPhoneExist = await queryHelper.isExist('store', 'st_store', 'phone', ` phone = '${ phone }'`);
-            const isEmailExist = await queryHelper.isExist('store', 'st_store', 'email', ` email = '${ email }'`);
+            const isStoreNameExist = await queryHelper.isExist(schemaTable, 'storename', ` storename = '${ storeName }'`);
+            const isPhoneExist = await queryHelper.isExist(schemaTable, 'phone', ` phone = '${ phone }'`);
+            const isEmailExist = await queryHelper.isExist(schemaTable, 'email', ` email = '${ email }'`);
             
             if(isStoreNameExist) { return responseError(404, "Store Name already Exist!", res ) };
             if(isPhoneExist) { return responseError(404, "Phone Number already used!", res ) }; 
@@ -28,7 +29,7 @@ class StoreController {
                 storelink : storeLink,
                 email : email
             };
-            const result = await queryHelper.insertData('store', 'st_store', data);
+            const result = await queryHelper.insertData(schemaTable, data);
             if(result){
                 return response(200, data, "Successfully created Store", res, result.rowCount)
             }else{
