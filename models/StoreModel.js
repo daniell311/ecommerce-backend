@@ -1,9 +1,11 @@
 import queryHelper from "../utils/queryHelper.js";
 
-export const schema = 'store';
-export const table = 'st_store';
-export const schemaTable = schema+'.'+table;
-
+export const tableAttr = {
+    schema : 'store',
+    table : 'st_store',
+    schemaTable : 'store.st_store',
+    key : 'storeid'
+}
 class StoreModel{
 
 }
