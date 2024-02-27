@@ -45,9 +45,9 @@ class queryHelper {
         }
     }
 
-    async getData(schema, table, limit, offset){
+    async getData(table, limit, offset){
         try {
-            let sql = `SELECT * FROM ${ schema }.${ table }`;
+            let sql = `SELECT * FROM ${ table }`;
             if(limit != null) { sql += ` LIMIT ${ limit }` };
             if(offset != null) { sql += ` OFFSET ${ offset }` }; 
 
@@ -65,9 +65,9 @@ class queryHelper {
         }
     }
 
-    async countRow(schema, table, col, condition){
+    async countRow(table, col, condition){
         try {
-            let sql = `SELECT COUNT(${ col }) FROM ${ schema }.${ table }`;
+            let sql = `SELECT COUNT(${ col }) FROM ${ table }`;
             if(condition) sql += ` WHERE ${ condition }`;
             
             const myPromise = () => {
@@ -85,9 +85,9 @@ class queryHelper {
         }
     }
     
-    async getRow(schema, table, condition){
+    async getRow(table, condition){
         try {
-            const sql = `SELECT * FROM ${ schema }.${ table } WHERE ${ condition }`
+            const sql = `SELECT * FROM ${ table } WHERE ${ condition }`
             const myPromise = () => {
                 return new Promise((resolve, reject) => {
                     db.query(sql, (err, fields) => {
@@ -106,7 +106,7 @@ class queryHelper {
         }
     }
 
-    async insertData(schema, table, data){
+    async insertData(table, data){
         try {
             let cols = [];
             let values = [];
@@ -118,7 +118,7 @@ class queryHelper {
                     values.push(data[key]);
                 }
             }
-            const sql = `INSERT INTO ${schema}.${table} (${cols}) VALUES (${values})`;
+            const sql = `INSERT INTO ${table} (${cols}) VALUES (${values})`;
             const myPromise = () => {
                 return new Promise((resolve, reject) => {
                     db.query(sql, (err, fields) => {
@@ -137,7 +137,7 @@ class queryHelper {
 
     // TODO handle if table keys have > 1 
     // TODO Handle get user username for every update rows, if possible don't use req
-    async updateData(schema, table, data, keys, req){
+    async updateData(table, data, keys, req){
         try {
             const tableKey = await getTableKey(table);
             const userName = req.jsonwebtoken.username;
@@ -153,7 +153,7 @@ class queryHelper {
                     values.push(key + "=" + data[key]);
                 }
             }
-            const sql = `UPDATE ${schema}.${table} set ${ values } WHERE ${ tableKey[0] } = ${ keys }`;
+            const sql = `UPDATE ${table} set ${ values } WHERE ${ tableKey[0] } = ${ keys }`;
             const myPromise = () => {
                 return new Promise((resolve, reject) => {
                     db.query(sql, (err, fields) => {
@@ -170,9 +170,9 @@ class queryHelper {
         }
     }
 
-    async deleteData(schema, table, condition){
+    async deleteData(table, condition){
         try {
-            const sql = `DELETE FROM ${schema}.${table} WHERE ${ condition }`;
+            const sql = `DELETE FROM ${table} WHERE ${ condition }`;
             const myPromise = () => {
                 return new Promise((resolve, reject) => {
                     db.query(sql, (err, fields) => {
@@ -189,9 +189,9 @@ class queryHelper {
         }
     }
 
-    async findOne(schema, table, col, condition){
+    async findOne(table, col, condition){
         try {
-            const sql = `SELECT ${ col } FROM ${ schema }.${ table } WHERE ${ condition }`
+            const sql = `SELECT ${ col } FROM ${ table } WHERE ${ condition }`
             const myPromise = () => {
                 return new Promise((resolve, reject) => {
                     db.query(sql, (err, fields) => {
@@ -209,9 +209,9 @@ class queryHelper {
         }
     } 
 
-    async isExist(schema, table, col, condition){
+    async isExist(table, col, condition){
         try {
-            const sql = `SELECT ${ col } FROM ${ schema }.${ table } WHERE ${ condition } `;
+            const sql = `SELECT ${ col } FROM ${ table } WHERE ${ condition } `;
             const myPromise = () => {
                 return new Promise((resolve, reject) => {
                     db.query(sql, (err, fields) => {
