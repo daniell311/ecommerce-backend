@@ -139,7 +139,8 @@ class queryHelper {
     // TODO Handle get user username for every update rows, if possible don't use req
     async updateData(table, data, keys, req){
         try {
-            const tableKey = await getTableKey(table);
+            const tableName = table.split(".");
+            const tableKey = await getTableKey(tableName[1]);
             const userName = req.jsonwebtoken.username;
 
             let values = [];
